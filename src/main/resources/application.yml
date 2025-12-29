@@ -1,0 +1,3 @@
+jwt:
+  secret: minha-chave-super-secreta-com-no-minimo-64-bytes-para-hs512-2025
+  expiration: 86400000 # 1 dia
