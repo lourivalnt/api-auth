@@ -42,6 +42,9 @@ dependencies {
     
     // Banco de dados
     runtimeOnly 'org.postgresql:postgresql'
+
+    //Flyway
+    implementation 'org.flywaydb:flyway-core'
     
     // Testes
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
