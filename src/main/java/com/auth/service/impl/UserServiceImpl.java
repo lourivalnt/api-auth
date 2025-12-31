@@ -1,11 +1,11 @@
 package com.auth.service.impl;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.auth.entity.Role;
 import com.auth.entity.User;
-import com.auth.exception.BusinessException;
 import com.auth.repository.UserRepository;
 import com.auth.service.UserService;
 
@@ -19,17 +19,23 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public User register(User user) {
+    public User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder
+            .getContext()
+            .getAuthentication();
 
-        if(userRepository.existsByEmail(user.getEmail())) {
-            throw new BusinessException("Email já cadastrado");
-        }
+        String email = authentication.getName();
 
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRole(Role.ROLE_USER);
-        user.setActive(true);
+        return userRepository.findByEmail(email)
+            .orElseThrow(() -> 
+                new IllegalStateException("Usuário autenticado não encontrado"));
+    }
 
-        return userRepository.save(user);
+    @Override
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email)
+            .orElseThrow(() -> 
+                new IllegalArgumentException("Usuário não encontrado"));
     }
 
 }

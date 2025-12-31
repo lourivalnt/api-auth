@@ -4,5 +4,7 @@ import com.auth.entity.User;
 
 public interface UserService {
 
-    User register(User user);
+    User getCurrentUser();
+
+    User findByEmail(String email);
 }
