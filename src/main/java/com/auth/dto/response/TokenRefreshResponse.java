@@ -1,6 +1,6 @@
 package com.auth.dto.response;
-public record AuthResponse(
+
+public record TokenRefreshResponse(
         String accessToken,
-        String refreshToken,
         String tokenType
 ) {}
