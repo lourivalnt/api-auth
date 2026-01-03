@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,9 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     private static final long REFRESH_TOKEN_EXPIRATION_DAYS = 7;
 
+    @Value("${jwt.refresh-expiration}")
+    private long refreshTokenExpiration;
+
     private final RefreshTokenRepository repository;
     private final UserRepository userRepository;
 
@@ -36,8 +40,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         RefreshToken token = RefreshToken.builder()
                 .token(UUID.randomUUID().toString())
                 .user(user)
-                .expiryDate(Instant.now().plus(
-                        REFRESH_TOKEN_EXPIRATION_DAYS, ChronoUnit.DAYS))
+                .expiryDate(Instant.now().plusSeconds(refreshTokenExpiration))
                 .revoked(false)
                 .build();
 
@@ -76,5 +79,11 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
                 .build();
 
         return repository.save(newToken);
+    }
+
+    @Override
+    public void revoke(RefreshToken token) {
+        token.setRevoked(true);
+        repository.save(token);
     }
 }

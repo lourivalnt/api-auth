@@ -10,7 +10,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.auth.dto.request.LoginRequest;
-import com.auth.dto.request.RefreshTokenRequest;
 import com.auth.dto.request.RegisterRequest;
 import com.auth.dto.response.AuthResponse;
 import com.auth.entity.RefreshToken;
@@ -20,8 +19,6 @@ import com.auth.repository.UserRepository;
 import com.auth.security.JwtTokenProvider;
 import com.auth.service.AuthService;
 import com.auth.service.RefreshTokenService;
-import com.auth.service.UserService;
-
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -96,9 +93,10 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void logout() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'logout'");
+    public void logout(String refreshToken) {
+        RefreshToken token = refreshTokenService.verify(refreshToken);
+
+        refreshTokenService.revoke(token);
     }
 
 }

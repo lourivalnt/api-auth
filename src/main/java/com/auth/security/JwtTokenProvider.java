@@ -8,6 +8,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+import com.auth.exception.JwtAuthenticationException;
+
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -18,7 +22,7 @@ public class JwtTokenProvider {
     @Value("${jwt.secret}")
     private String jwtSecret;
 
-    @Value("${jwt.expiration}")
+    @Value("${jwt.access-expiration}")
     private long jwtExpiration;
 
     private SecretKey key;
@@ -57,10 +61,15 @@ public class JwtTokenProvider {
             Jwts.parser()
                     .verifyWith(key)
                     .build()
-                    .parse(token);
+                    .parseSignedClaims(token);
             return true;
-        } catch (Exception ex) {
-            return false;
+
+        } catch (ExpiredJwtException e) {
+            throw new JwtAuthenticationException("Token expirado");
+
+        } catch (JwtException | IllegalArgumentException e) {
+            throw new JwtAuthenticationException("Token inválido");
         }
     }
+
 }

@@ -1,9 +1,7 @@
 jwt:
   secret: minha-chave-super-secreta-com-no-minimo-64-bytes-para-hs512-2025
-  expiration: 86400000 # 1 dia
-
-jwt:
-  refresh-expiration: 604800000 # 7 dias
+  access-expiration: 15000  # 15 segundos (15 * 1000)
+  refresh-expiration: 30000  # 30 segundos em milissegundos
   
 spring:
   datasource:

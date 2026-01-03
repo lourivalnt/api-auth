@@ -1,12 +1,8 @@
 package com.auth.controller;
 
-import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,10 +12,7 @@ import com.auth.dto.request.LoginRequest;
 import com.auth.dto.request.RefreshTokenRequest;
 import com.auth.dto.request.RegisterRequest;
 import com.auth.dto.response.AuthResponse;
-import com.auth.entity.RefreshToken;
-import com.auth.entity.User;
 import com.auth.service.AuthService;
-import com.auth.service.RefreshTokenService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -51,4 +44,12 @@ public class AuthController {
 
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@RequestBody String refreshToken) {
+        authService.logout(refreshToken);
+        return ResponseEntity.noContent().build();
+    }
+
+
 }
