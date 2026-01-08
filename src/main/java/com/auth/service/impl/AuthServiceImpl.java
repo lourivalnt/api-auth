@@ -94,9 +94,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void logout(String refreshToken) {
-        RefreshToken token = refreshTokenService.verify(refreshToken);
-
-        refreshTokenService.revoke(token);
+        refreshTokenService.revoke(refreshToken);
     }
 
 }

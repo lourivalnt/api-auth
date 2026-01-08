@@ -10,17 +10,17 @@ import org.springframework.stereotype.Service;
 
 import com.auth.entity.RefreshToken;
 import com.auth.entity.User;
+import com.auth.exception.RefreshTokenException;
 import com.auth.repository.RefreshTokenRepository;
 import com.auth.repository.UserRepository;
 import com.auth.service.RefreshTokenService;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class RefreshTokenServiceImpl implements RefreshTokenService {
-
-    private static final long REFRESH_TOKEN_EXPIRATION_DAYS = 7;
 
     @Value("${jwt.refresh-expiration}")
     private long refreshTokenExpiration;
@@ -29,13 +29,13 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     private final UserRepository userRepository;
 
     @Override
+    @Transactional
     public RefreshToken create(String email) {
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
 
-        // Remove tokens antigos (1 refresh por usuário)
-        repository.deleteByUser(user);
+        repository.deleteByUser(user); // ✅ agora seguro
 
         RefreshToken token = RefreshToken.builder()
                 .token(UUID.randomUUID().toString())
@@ -49,32 +49,32 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     @Override
     public RefreshToken verify(String token) {
-
+        // 🔎 só leitura → NÃO precisa de @Transactional
         RefreshToken refreshToken = repository.findByToken(token)
-                .orElseThrow(() -> new RuntimeException("Refresh token inválido"));
+                .orElseThrow(() -> new RefreshTokenException("Refresh token inválido"));
 
         if (refreshToken.isRevoked()) {
-            throw new RuntimeException("Refresh token revogado");
+            throw new RefreshTokenException("Refresh token revogado");
         }
 
         if (refreshToken.getExpiryDate().isBefore(Instant.now())) {
-            throw new RuntimeException("Refresh token expirado");
+            throw new RefreshTokenException("Refresh token expirado");
         }
 
         return refreshToken;
     }
 
     @Override
+    @Transactional
     public RefreshToken rotate(RefreshToken oldToken) {
 
         oldToken.setRevoked(true);
-        repository.save(oldToken);
+        repository.save(oldToken); // ✅ mesma transação
 
         RefreshToken newToken = RefreshToken.builder()
                 .token(UUID.randomUUID().toString())
                 .user(oldToken.getUser())
-                .expiryDate(Instant.now().plus(
-                        REFRESH_TOKEN_EXPIRATION_DAYS, ChronoUnit.DAYS))
+                .expiryDate(Instant.now().plus(7, ChronoUnit.DAYS))
                 .revoked(false)
                 .build();
 
@@ -82,8 +82,13 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     }
 
     @Override
-    public void revoke(RefreshToken token) {
-        token.setRevoked(true);
-        repository.save(token);
+    @Transactional
+    public void revoke(String token) {
+
+        RefreshToken refreshToken = repository.findByToken(token)
+                .orElseThrow(() -> new RefreshTokenException("Refresh token inválido ou inexistente"));
+
+        refreshToken.setRevoked(true);
+        repository.save(refreshToken);
     }
 }

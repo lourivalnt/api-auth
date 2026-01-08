@@ -10,5 +10,5 @@ public interface RefreshTokenService {
 
     RefreshToken rotate(RefreshToken token);
 
-    void revoke(RefreshToken token);
+    void revoke(String token);
 }

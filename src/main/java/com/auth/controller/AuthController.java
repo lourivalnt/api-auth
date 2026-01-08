@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.auth.dto.request.LoginRequest;
+import com.auth.dto.request.LogoutRequest;
 import com.auth.dto.request.RefreshTokenRequest;
 import com.auth.dto.request.RegisterRequest;
 import com.auth.dto.response.AuthResponse;
@@ -46,8 +47,8 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@RequestBody String refreshToken) {
-        authService.logout(refreshToken);
+    public ResponseEntity<Void> logout(@RequestBody LogoutRequest refreshToken) {
+        authService.logout(refreshToken.refreshToken());
         return ResponseEntity.noContent().build();
     }
 
