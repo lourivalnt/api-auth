@@ -32,7 +32,7 @@ public class AuthServiceImpl implements AuthService {
     private final RefreshTokenService refreshTokenService;
 
     @Override
-    public void register(RegisterRequest request) {
+    public Long register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.email())) {
             throw new IllegalArgumentException("Email já cadastrado");
         }
@@ -45,7 +45,9 @@ public class AuthServiceImpl implements AuthService {
         user.setRole(Role.ROLE_USER);
         user.setActive(true);
 
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
+
+        return savedUser.getId();
     }
 
     @Override

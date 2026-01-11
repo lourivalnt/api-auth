@@ -6,7 +6,7 @@ import com.auth.dto.response.AuthResponse;
 
 public interface AuthService {
 
-    void register(RegisterRequest request);
+    Long register(RegisterRequest request);
 
     AuthResponse login(LoginRequest request);
 

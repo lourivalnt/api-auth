@@ -1,6 +1,8 @@
 package com.auth.controller;
 
 
+import java.net.URI;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -41,8 +43,11 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<Void> register(
             @RequestBody @Valid RegisterRequest request) {
-        authService.register(request);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+
+        Long userId = authService.register(request);
+
+        URI location = URI.create("users/" + userId);
+        return ResponseEntity.created(location).build();
     }
 
     @Operation(summary = "Login do usuário")
