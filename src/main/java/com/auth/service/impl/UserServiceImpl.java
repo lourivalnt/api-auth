@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.auth.dto.response.UserResponseDTO;
 import com.auth.entity.User;
+import com.auth.exception.UserNotFoundException;
 import com.auth.mapper.UserMapper;
 import com.auth.repository.UserRepository;
 import com.auth.service.UserService;
@@ -28,18 +29,8 @@ public class UserServiceImpl implements UserService {
 
         User user = userRepository.findByEmail(email)
             .orElseThrow(() -> 
-                new IllegalStateException("Usuário autenticado não encontrado"));
+                new UserNotFoundException("Usuário autenticado não encontrado"));
 
-        return UserMapper.toResponse(user);
-    }
-
-    @Override
-    public UserResponseDTO findByEmail(String email) {
-
-        User user = userRepository.findByEmail(email)
-            .orElseThrow(() -> 
-                new IllegalArgumentException("Usuário não encontrado"));
-        
         return UserMapper.toResponse(user);
     }
 

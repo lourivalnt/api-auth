@@ -125,4 +125,19 @@ public class GlobalExceptionHandler {
             request
         );
     }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ProblemDetail handleUserNotFound(
+            UserNotFoundException ex,
+            HttpServletRequest request) {
+
+        return build(
+                HttpStatus.NOT_FOUND,
+                "Usuário não encontrado",
+                ex.getMessage(),
+                "https://api.auth.com/errors/user-not-found",
+                request
+        );
+    }
+ 
 }
