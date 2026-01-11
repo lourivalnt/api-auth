@@ -5,7 +5,7 @@ import lombok.Builder;
 
 @Builder
 @Schema(description = "Dados do usuário autenticado")
-public record UserResponse(
+public record UserResponseDTO(
 
     @Schema(example = "1")
     Long id,

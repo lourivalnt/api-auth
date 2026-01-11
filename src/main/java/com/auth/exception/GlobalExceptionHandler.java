@@ -1,140 +1,128 @@
 package com.auth.exception;
 
-import java.time.Instant;
+import java.net.URI;
 
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.ProblemDetail;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.core.AuthenticationException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@RestControllerAdvice()
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    private ProblemDetails buildProblem(
+    private ProblemDetail build(
             HttpStatus status,
             String title,
             String detail,
             String type,
             HttpServletRequest request
     ) {
-        return ProblemDetails.builder()
-                .type(type)
-                .title(title)
-                .status(status.value())
-                .detail(detail)
-                .instance(request.getRequestURI())
-                .timestamp(Instant.now())
-                .build();
+        ProblemDetail problem = ProblemDetail.forStatus(status);
+        problem.setTitle(title);
+        problem.setDetail(detail);
+        problem.setType(URI.create(type));
+        problem.setInstance(URI.create(request.getRequestURI()));
+        return problem;
     }
 
-    // 🔐 Credenciais inválidas
+    /* ============================
+       401 - Credenciais inválidas
+       ============================ */
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ProblemDetails> handleBadCredentials(
+    public ProblemDetail handleBadCredentials(
             BadCredentialsException ex,
-            HttpServletRequest request
-    ) {
-        return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .body(buildProblem(
-                        HttpStatus.UNAUTHORIZED,
-                        "Credenciais inválidas",
-                        ex.getMessage(),
-                        "https://api.auth.com/errors/invalid-credentials",
-                        request
-                ));
+            HttpServletRequest request) {
+
+        return build(
+            HttpStatus.UNAUTHORIZED,
+            "Unauthorized",
+            "Credenciais inválidas",
+            "https://api.auth.com/errors/unauthorized",
+            request
+        );
     }
 
-    // 🚫 Usuário desativado
-    @ExceptionHandler(DisabledException.class)
-    public ResponseEntity<ProblemDetails> handleDisabledUser(
-            DisabledException ex,
-            HttpServletRequest request
-    ) {
-        return ResponseEntity
-                .status(HttpStatus.FORBIDDEN)
-                .body(buildProblem(
-                        HttpStatus.FORBIDDEN,
-                        "Usuário desativado",
-                        ex.getMessage(),
-                        "https://api.auth.com/errors/user-disabled",
-                        request
-                ));
-    }
-
-    // 🔒 Acesso negado
+    /* ============================
+       403 - Acesso negado
+       ============================ */
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ProblemDetails> handleAccessDenied(
+    public ProblemDetail handleAccessDenied(
             AccessDeniedException ex,
-            HttpServletRequest request
-    ) {
-        return ResponseEntity
-                .status(HttpStatus.FORBIDDEN)
-                .body(buildProblem(
-                        HttpStatus.FORBIDDEN,
-                        "Acesso negado",
-                        ex.getMessage(),
-                        "https://api.auth.com/errors/access-denied",
-                        request
-                ));
+            HttpServletRequest request) {
+
+        return build(
+            HttpStatus.FORBIDDEN,
+            "Forbidden",
+            "Você não tem permissão para acessar este recurso",
+            "https://api.auth.com/errors/forbidden",
+            request
+        );
     }
 
-    // 🔄 Refresh token inválido / expirado
-    @ExceptionHandler(RefreshTokenException.class)
-    public ResponseEntity<ProblemDetails> handleRefreshToken(
-            RefreshTokenException ex,
-            HttpServletRequest request
-    ) {
-        return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .body(buildProblem(
-                        HttpStatus.UNAUTHORIZED,
-                        "Refresh token inválido",
-                        ex.getMessage(),
-                        "https://api.auth.com/errors/refresh-token",
-                        request
-                ));
+    /* ============================
+       400 - Validação
+       ============================ */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ProblemDetail handleValidation(
+            MethodArgumentNotValidException ex,
+            HttpServletRequest request) {
+
+        ProblemDetail problem = build(
+            HttpStatus.BAD_REQUEST,
+            "Validation error",
+            "Erro de validação nos campos da requisição",
+            "https://api.auth.com/errors/validation",
+            request
+        );
+
+        problem.setProperty(
+            "errors",
+            ex.getBindingResult()
+              .getFieldErrors()
+              .stream()
+              .map(e -> e.getField() + ": " + e.getDefaultMessage())
+              .toList()
+        );
+
+        return problem;
     }
 
-    // 🔑 Erros de autenticação (JWT, Security)
-    @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<ProblemDetails> handleAuthentication(
-            AuthenticationException ex,
-            HttpServletRequest request
-    ) {
-        return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .body(buildProblem(
-                        HttpStatus.UNAUTHORIZED,
-                        "Erro de autenticação",
-                        ex.getMessage(),
-                        "https://api.auth.com/errors/authentication",
-                        request
-                ));
+    /* ============================
+       404 - Recurso não encontrado
+       ============================ */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ProblemDetail handleNotFound(
+            IllegalArgumentException ex,
+            HttpServletRequest request) {
+
+        return build(
+            HttpStatus.NOT_FOUND,
+            "Resource not found",
+            ex.getMessage(),
+            "https://api.auth.com/errors/not-found",
+            request
+        );
     }
 
-    // 💥 Erro inesperado (fallback ÚNICO)
+    /* ============================
+       500 - Erro interno
+       ============================ */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ProblemDetails> handleGeneric(
+    public ProblemDetail handleGeneric(
             Exception ex,
-            HttpServletRequest request
-    ) {
+            HttpServletRequest request) {
 
-        
-
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(buildProblem(
-                        HttpStatus.INTERNAL_SERVER_ERROR,
-                        "Erro interno",
-                        "Ocorreu um erro inesperado",
-                        "https://api.auth.com/errors/internal",
-                        request
-                ));
+        return build(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            "Internal Server Error",
+            "Ocorreu um erro inesperado",
+            "https://api.auth.com/errors/internal",
+            request
+        );
     }
 }

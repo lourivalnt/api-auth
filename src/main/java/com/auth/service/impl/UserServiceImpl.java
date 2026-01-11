@@ -2,10 +2,9 @@ package com.auth.service.impl;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.auth.dto.response.UserResponse;
+import com.auth.dto.response.UserResponseDTO;
 import com.auth.entity.User;
 import com.auth.mapper.UserMapper;
 import com.auth.repository.UserRepository;
@@ -20,7 +19,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     @Override
-    public UserResponse getCurrentUser() {
+    public UserResponseDTO getCurrentUser() {
         Authentication authentication = SecurityContextHolder
             .getContext()
             .getAuthentication();
@@ -35,7 +34,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse findByEmail(String email) {
+    public UserResponseDTO findByEmail(String email) {
 
         User user = userRepository.findByEmail(email)
             .orElseThrow(() -> 

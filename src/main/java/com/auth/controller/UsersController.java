@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.auth.dto.response.UserResponse;
+import com.auth.dto.response.UserResponseDTO;
 import com.auth.service.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/users")
 @RequiredArgsConstructor
 @SecurityRequirement(name = "bearerAuth")
-@Tag(name = "Usuários", description = "Endpoints protegidos do usuário")
+@Tag(name = "Usuários", description = "Endpoints relacionados ao usuário autenticado")
 public class UsersController {
 
     private final UserService userService;  
@@ -34,7 +34,7 @@ public class UsersController {
             @ApiResponse(responseCode = "403", description = "Sem permissão")
     })
     @GetMapping("/me")
-    public ResponseEntity<UserResponse> me() {
+    public ResponseEntity<UserResponseDTO> me() {
         return ResponseEntity.ok(userService.getCurrentUser());
     }
 

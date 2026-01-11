@@ -1,9 +1,9 @@
 package com.auth.service;
 
-import com.auth.dto.response.UserResponse;
+import com.auth.dto.response.UserResponseDTO;
 public interface UserService {
 
-    UserResponse getCurrentUser();
+    UserResponseDTO getCurrentUser();
 
-    UserResponse findByEmail(String email);
+    UserResponseDTO findByEmail(String email);
 }
