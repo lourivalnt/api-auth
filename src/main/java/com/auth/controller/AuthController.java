@@ -15,16 +15,29 @@ import com.auth.dto.request.RegisterRequest;
 import com.auth.dto.response.AuthResponse;
 import com.auth.service.AuthService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
+@Tag(name = "Autenticação", description = "Endpoints de login, refresh e logout")
 public class AuthController {
 
     private final AuthService authService;
 
+    @Operation(
+        summary = "Cadastro de usuário",
+        description = "Registra um novo usuário no sistema"
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Usuário criado com sucesso"),
+        @ApiResponse(responseCode = "400", description = "Dados inválidos")
+    })
     @PostMapping("/register")
     public ResponseEntity<Void> register(
             @RequestBody @Valid RegisterRequest request) {
@@ -32,12 +45,25 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @Operation(summary = "Login do usuário")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Login realizado"),
+        @ApiResponse(responseCode = "401", description = "Credenciais inválidas")
+    })
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(
             @RequestBody @Valid LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
     }
 
+    @Operation(
+        summary = "Refresh token",
+        description = "Gera um novo access token a partir de um refresh token válido"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Token renovado com sucesso"),
+            @ApiResponse(responseCode = "401", description = "Refresh token inválido ou expirado")
+    })
     @PostMapping("/refresh")
     public ResponseEntity<AuthResponse> refresh(
             @RequestBody RefreshTokenRequest request) {
@@ -46,6 +72,14 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(
+            summary = "Logout",
+            description = "Revoga o refresh token do usuário"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Logout realizado com sucesso"),
+            @ApiResponse(responseCode = "401", description = "Token inválido")
+    })
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(@RequestBody LogoutRequest refreshToken) {
         authService.logout(refreshToken.refreshToken());

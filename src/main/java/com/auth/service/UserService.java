@@ -1,10 +1,9 @@
 package com.auth.service;
 
-import com.auth.entity.User;
-
+import com.auth.dto.response.UserResponse;
 public interface UserService {
 
-    User getCurrentUser();
+    UserResponse getCurrentUser();
 
-    User findByEmail(String email);
+    UserResponse findByEmail(String email);
 }

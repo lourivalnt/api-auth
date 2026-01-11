@@ -5,7 +5,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.auth.dto.response.UserResponse;
 import com.auth.entity.User;
+import com.auth.mapper.UserMapper;
 import com.auth.repository.UserRepository;
 import com.auth.service.UserService;
 
@@ -16,26 +18,30 @@ import lombok.RequiredArgsConstructor;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
 
     @Override
-    public User getCurrentUser() {
+    public UserResponse getCurrentUser() {
         Authentication authentication = SecurityContextHolder
             .getContext()
             .getAuthentication();
 
         String email = authentication.getName();
 
-        return userRepository.findByEmail(email)
+        User user = userRepository.findByEmail(email)
             .orElseThrow(() -> 
                 new IllegalStateException("Usuário autenticado não encontrado"));
+
+        return UserMapper.toResponse(user);
     }
 
     @Override
-    public User findByEmail(String email) {
-        return userRepository.findByEmail(email)
+    public UserResponse findByEmail(String email) {
+
+        User user = userRepository.findByEmail(email)
             .orElseThrow(() -> 
                 new IllegalArgumentException("Usuário não encontrado"));
+        
+        return UserMapper.toResponse(user);
     }
 
 }
