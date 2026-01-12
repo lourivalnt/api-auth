@@ -15,6 +15,7 @@ import com.auth.dto.response.AuthResponse;
 import com.auth.entity.RefreshToken;
 import com.auth.entity.Role;
 import com.auth.entity.User;
+import com.auth.exception.UserAlreadyExistsException;
 import com.auth.repository.UserRepository;
 import com.auth.security.JwtTokenProvider;
 import com.auth.service.AuthService;
@@ -34,7 +35,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public Long register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.email())) {
-            throw new IllegalArgumentException("Email já cadastrado");
+            throw new UserAlreadyExistsException("Email já cadastrado");
         }
 
         User user = new User();

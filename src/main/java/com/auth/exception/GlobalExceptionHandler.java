@@ -1,6 +1,7 @@
 package com.auth.exception;
 
 import java.net.URI;
+import java.time.OffsetDateTime;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -27,6 +28,7 @@ public class GlobalExceptionHandler {
         problem.setDetail(detail);
         problem.setType(URI.create(type));
         problem.setInstance(URI.create(request.getRequestURI()));
+        problem.setProperty("timestamp", OffsetDateTime.now());
         return problem;
     }
 
@@ -35,7 +37,6 @@ public class GlobalExceptionHandler {
        ============================ */
     @ExceptionHandler(BadCredentialsException.class)
     public ProblemDetail handleBadCredentials(
-            BadCredentialsException ex,
             HttpServletRequest request) {
 
         return build(
@@ -52,7 +53,6 @@ public class GlobalExceptionHandler {
        ============================ */
     @ExceptionHandler(AccessDeniedException.class)
     public ProblemDetail handleAccessDenied(
-            AccessDeniedException ex,
             HttpServletRequest request) {
 
         return build(
@@ -65,7 +65,7 @@ public class GlobalExceptionHandler {
     }
 
     /* ============================
-       400 - Validação
+       400 - Validação Bean Validation
        ============================ */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail handleValidation(
@@ -93,24 +93,41 @@ public class GlobalExceptionHandler {
     }
 
     /* ============================
-       404 - Recurso não encontrado
+       404 - Usuário não encontrado (DOMÍNIO)
        ============================ */
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ProblemDetail handleNotFound(
-            IllegalArgumentException ex,
+    @ExceptionHandler(UserNotFoundException.class)
+    public ProblemDetail handleUserNotFound(
+            UserNotFoundException ex,
             HttpServletRequest request) {
 
         return build(
             HttpStatus.NOT_FOUND,
-            "Resource not found",
+            "Usuário não encontrado",
             ex.getMessage(),
-            "https://api.auth.com/errors/not-found",
+            "https://api.auth.com/errors/user-not-found",
             request
         );
     }
 
     /* ============================
-       500 - Erro interno
+       400 - Requisição inválida
+       ============================ */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ProblemDetail handleIllegalArgument(
+            IllegalArgumentException ex,
+            HttpServletRequest request) {
+
+        return build(
+            HttpStatus.BAD_REQUEST,
+            "Requisição inválida",
+            ex.getMessage(),
+            "https://api.auth.com/errors/bad-request",
+            request
+        );
+    }
+
+    /* ============================
+       500 - Erro inesperado
        ============================ */
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleGeneric(
@@ -126,18 +143,19 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler(UserNotFoundException.class)
-    public ProblemDetail handleUserNotFound(
-            UserNotFoundException ex,
-            HttpServletRequest request) {
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ProblemDetail handleUserAlreadyExists(
+                UserAlreadyExistsException ex,
+                HttpServletRequest request) {
 
         return build(
-                HttpStatus.NOT_FOUND,
-                "Usuário não encontrado",
+                HttpStatus.CONFLICT,
+                "Usuário já existe",
                 ex.getMessage(),
-                "https://api.auth.com/errors/user-not-found",
+                "https://api.auth.com/errors/user-already-exists",
                 request
         );
     }
- 
+
 }
+

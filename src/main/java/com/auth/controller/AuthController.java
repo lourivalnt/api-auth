@@ -32,24 +32,6 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @Operation(
-        summary = "Cadastro de usuário",
-        description = "Registra um novo usuário no sistema"
-    )
-    @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "Usuário criado com sucesso"),
-        @ApiResponse(responseCode = "400", description = "Dados inválidos")
-    })
-    @PostMapping("/register")
-    public ResponseEntity<Void> register(
-            @RequestBody @Valid RegisterRequest request) {
-
-        Long userId = authService.register(request);
-
-        URI location = URI.create("users/" + userId);
-        return ResponseEntity.created(location).build();
-    }
-
     @Operation(summary = "Login do usuário")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Login realizado"),

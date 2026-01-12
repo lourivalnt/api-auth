@@ -2,10 +2,14 @@ package com.auth.service.impl;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.auth.dto.request.RegisterRequest;
 import com.auth.dto.response.UserResponseDTO;
+import com.auth.entity.Role;
 import com.auth.entity.User;
+import com.auth.exception.UserAlreadyExistsException;
 import com.auth.exception.UserNotFoundException;
 import com.auth.mapper.UserMapper;
 import com.auth.repository.UserRepository;
@@ -18,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserResponseDTO getCurrentUser() {
@@ -32,6 +37,31 @@ public class UserServiceImpl implements UserService {
                 new UserNotFoundException("Usuário autenticado não encontrado"));
 
         return UserMapper.toResponse(user);
+    }
+
+    @Override
+    public Long create(RegisterRequest request) {
+        if(userRepository.existsByEmail(request.email())) {
+            throw new UserAlreadyExistsException(request.email());
+        }
+
+        User user = new User();
+        user.setName(request.name());
+        user.setEmail(request.email());
+        user.setPassword(passwordEncoder.encode(request.password()));
+        user.setRole(Role.ROLE_USER);
+        user.setActive(true);
+
+        userRepository.save(user);
+
+        return user.getId();
+
+    }
+
+    @Override
+    public UserResponseDTO findByEmail(String email) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'findByEmail'");
     }
 
 }
