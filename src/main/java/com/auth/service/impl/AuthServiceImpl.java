@@ -26,30 +26,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenService refreshTokenService;
-
-    @Override
-    public Long register(RegisterRequest request) {
-        if (userRepository.existsByEmail(request.email())) {
-            throw new UserAlreadyExistsException("Email já cadastrado");
-        }
-
-        User user = new User();
-
-        user.setName(request.name());
-        user.setEmail(request.email());
-        user.setPassword(passwordEncoder.encode(request.password()));
-        user.setRole(Role.ROLE_USER);
-        user.setActive(true);
-
-        User savedUser = userRepository.save(user);
-
-        return savedUser.getId();
-    }
 
     @Override
     public AuthResponse login(LoginRequest request) {

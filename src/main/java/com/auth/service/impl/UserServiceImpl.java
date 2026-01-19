@@ -40,7 +40,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Long create(RegisterRequest request) {
+    public UserResponseDTO create(RegisterRequest request) {
         if(userRepository.existsByEmail(request.email())) {
             throw new UserAlreadyExistsException(request.email());
         }
@@ -52,16 +52,19 @@ public class UserServiceImpl implements UserService {
         user.setRole(Role.ROLE_USER);
         user.setActive(true);
 
-        userRepository.save(user);
+        User userSaved = userRepository.save(user);
 
-        return user.getId();
+        return UserMapper.toResponse(userSaved);
 
     }
 
     @Override
     public UserResponseDTO findByEmail(String email) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByEmail'");
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new UserNotFoundException("Usuário não encontrado"));
+
+        return UserMapper.toResponse(user);
     }
 
 }

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.auth.dto.request.RegisterRequest;
 import com.auth.dto.response.UserResponseDTO;
@@ -24,7 +25,6 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
-@SecurityRequirement(name = "bearerAuth")
 @Tag(name = "Usuários", description = "Endpoints relacionados ao usuário autenticado")
 public class UsersController {
 
@@ -40,14 +40,22 @@ public class UsersController {
         @ApiResponse(responseCode = "400", description = "Dados inválidos"),
         @ApiResponse(responseCode = "409", description = "Email já cadastrado")
     })
-    @PostMapping
-    public ResponseEntity<Void> create(
-        @Valid @RequestBody RegisterRequest request) {
-            Long userId = userService.create(request);
+   @PostMapping
+    public ResponseEntity<UserResponseDTO> create(
+            @Valid @RequestBody RegisterRequest request) {
 
-            URI location = URI.create("/users/" + userId);
-            return ResponseEntity.created(location).build();
-        }
+        UserResponseDTO user = userService.create(request);
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(user.id())
+                .toUri();
+
+        return ResponseEntity
+                .created(location)
+                .body(user);
+    }
     
     @Operation(
             summary = "Dados do usuário logado",
@@ -58,6 +66,7 @@ public class UsersController {
             @ApiResponse(responseCode = "401", description = "Não autenticado"),
             @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
     })
+    @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/me")
     public ResponseEntity<UserResponseDTO> me() {
         return ResponseEntity.ok(userService.getCurrentUser());
