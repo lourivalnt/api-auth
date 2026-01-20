@@ -6,17 +6,12 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.auth.dto.request.LoginRequest;
-import com.auth.dto.request.RegisterRequest;
 import com.auth.dto.response.AuthResponse;
 import com.auth.entity.RefreshToken;
-import com.auth.entity.Role;
 import com.auth.entity.User;
-import com.auth.exception.UserAlreadyExistsException;
-import com.auth.repository.UserRepository;
 import com.auth.security.JwtTokenProvider;
 import com.auth.service.AuthService;
 import com.auth.service.RefreshTokenService;

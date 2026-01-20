@@ -24,6 +24,8 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    private final UserMapper userMapper;
+
     @Override
     public UserResponseDTO getCurrentUser() {
         Authentication authentication = SecurityContextHolder
@@ -36,7 +38,7 @@ public class UserServiceImpl implements UserService {
             .orElseThrow(() -> 
                 new UserNotFoundException("Usuário autenticado não encontrado"));
 
-        return UserMapper.toResponse(user);
+        return userMapper.toResponse(user);
     }
 
     @Override
@@ -54,7 +56,7 @@ public class UserServiceImpl implements UserService {
 
         User userSaved = userRepository.save(user);
 
-        return UserMapper.toResponse(userSaved);
+        return userMapper.toResponse(userSaved);
 
     }
 
@@ -64,7 +66,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() ->
                         new UserNotFoundException("Usuário não encontrado"));
 
-        return UserMapper.toResponse(user);
+        return userMapper.toResponse(user);
     }
 
 }
