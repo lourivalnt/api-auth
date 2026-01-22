@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponseDTO create(RegisterRequest request) {
+    public Long create(RegisterRequest request) {
         if(userRepository.existsByEmail(request.email())) {
             throw new UserAlreadyExistsException(request.email());
         }
@@ -56,7 +56,17 @@ public class UserServiceImpl implements UserService {
 
         User userSaved = userRepository.save(user);
 
-        return userMapper.toResponse(userSaved);
+        return userSaved.getId();
+
+    }
+
+    @Override    
+    public UserResponseDTO findById(Long id) {
+        User user = userRepository.findById(id)
+            .orElseThrow(() ->
+                new UserNotFoundException("Usuário não encontrado" + id));
+
+        return userMapper.toResponse(user);
 
     }
 

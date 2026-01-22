@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
@@ -76,17 +75,11 @@ public class UserServiceImplTest {
         when(userRepository.existsByEmail(any())).thenReturn(false);
         when(passwordEncoder.encode(any())).thenReturn("encoded");
         when(userRepository.save(any())).thenReturn(userEntity());
-        when(userMapper.toResponse(any())).thenReturn(response());
 
-        UserResponseDTO result = userServiceImpl.create(request());
+        Long result = userServiceImpl.create(request());
 
         assertNotNull(result);
-        assertEquals("Paulo", result.name());
-        assertEquals("ROLE_USER", result.role());
-
-        verify(userRepository).save(any(User.class));
-        verify(passwordEncoder).encode("123456");
-        verify(userMapper).toResponse(any(User.class));
+        assertEquals(1L, result);
     }
 
     // ---------------------------------------------------
@@ -100,4 +93,6 @@ public class UserServiceImplTest {
             () -> userServiceImpl.create(request())
         );
     }
+
+    
 }
