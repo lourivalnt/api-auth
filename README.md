@@ -91,21 +91,7 @@ Projeto ideal para:
 
 ## 🧪 Testes
 
-A aplicação utiliza **testes de integração reais** com PostgreSQL:
-
-- MockMvc
-- Testcontainers (PostgreSQL)
-- Validação de:
-  - Status HTTP
-  - Headers (Location)
-  - Persistência real
-  - Erros padronizados
-
-```text
-✔ POST /users
-✔ Email duplicado (409)
-✔ Erro de validação (400)
-```
+A aplicação utiliza **testes de unitários reais**:
 
 ---
 
@@ -154,17 +140,6 @@ http://localhost:8080/swagger-ui.html
 ```bash
 ./mvnw spring-boot:run
 ```
-
----
-
-## 🧩 Próximas Evoluções
-
-- OAuth2 Authorization Server
-- SSO (Keycloak / Spring Authorization Server)
-- Multi-tenant
-- Auditoria (Spring Envers)
-- Rate limiting
-
 ---
 
 ## 👨‍💻 Autor
