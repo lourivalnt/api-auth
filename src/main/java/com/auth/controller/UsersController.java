@@ -129,17 +129,19 @@ public class UsersController {
                 schema = @Schema(implementation = UserResponseDTO.class)
             )
         ),
-        @ApiResponse(
-            responseCode = "404",
-            description = "Usuário não encontrado",
+          @ApiResponse(
+            responseCode = "403",
+            description = "Usuário autenticado sem permissão ROLE_ADMIN",
             content = @Content(
+                mediaType = "application/json",
                 schema = @Schema(implementation = ProblemDetail.class)
             )
         ),
         @ApiResponse(
-            responseCode = "403",
-            description = "Acesso negado",
+            responseCode = "404",
+            description = "Usuário não encontrado",
             content = @Content(
+                mediaType = "application/json",
                 schema = @Schema(implementation = ProblemDetail.class)
             )
         )
