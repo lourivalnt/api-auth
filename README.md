@@ -1,6 +1,6 @@
 # 🔐 Auth API – Spring Boot + JWT + PostgreSQL
 
-API de autenticação e gerenciamento de usuários construída com **Spring Boot**, seguindo padrões **REST**, **JWT**, **RFC 7807 (Problem Details)** e boas práticas de arquitetura utilizadas em ambientes corporativos.
+API de autenticação e gerenciamento de usuários construída com **Spring Boot**, seguindo padrões **REST**, **JWT**, **RFC 7807 (Problem Details)**, infraestrutura Docker e boas práticas de arquitetura utilizadas em ambientes corporativos.
 
 ---
 
@@ -14,7 +14,9 @@ Esta API fornece:
 - Padronização de erros com **Problem Details (RFC 7807)**
 - Documentação automática com **OpenAPI / Swagger**
 - Persistência em **PostgreSQL**
-- Testes de integração com **MockMvc + Testcontainers**
+- Testes de unidade com **JUnit 5 e Mockito**
+- Infraestrutura com Dock Compose
+- Collection Postman pronto para uso
 
 Projeto ideal para:
 - Portfólio profissional
@@ -36,6 +38,7 @@ Projeto ideal para:
 - OpenAPI / Swagger
 - Testcontainers
 - MockMvc
+- Gradle
 
 ---
 
@@ -46,6 +49,7 @@ Projeto ideal para:
 - Controle de acesso por role
 - Endpoints protegidos com `@PreAuthorize`
 - Filtro JWT customizado
+- Segredos externos via .env
 
 ### Roles
 
@@ -135,11 +139,37 @@ http://localhost:8080/swagger-ui.html
 - Java 21+
 - Docker (para PostgreSQL)
 
+### Configurar ambiente
+
+- cp .env.example .env
+Edite os valores sensíveis(JWT_SECRET, senha do banco).//////////
+
 ### Subir aplicação
 
 ```bash
 ./mvnw spring-boot:run
 ```
+ou
+```
+docker compose up --build
+```
+
+API disponível em:
+   http://localhost:8081
+
+### Postman
+
+- Collection disponível em: 
+```
+postman/auth-api.postman_collection.json
+```
+
+ - Environment configurável para:
+
+       - accessToken
+       - URLs
+       - Refresh Token
+
 ---
 
 ## 👨‍💻 Autor
