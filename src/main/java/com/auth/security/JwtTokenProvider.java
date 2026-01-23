@@ -2,6 +2,8 @@ package com.auth.security;
 
 import java.nio.charset.StandardCharsets;
 import javax.crypto.SecretKey;
+
+import java.util.Base64;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -29,7 +31,8 @@ public class JwtTokenProvider {
 
     @PostConstruct
     public void init() {
-        this.key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+        byte[] keyBytes = Base64.getDecoder().decode(jwtSecret);
+        this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
     public String generateToken(Authentication authentication) {

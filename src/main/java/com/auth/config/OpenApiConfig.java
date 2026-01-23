@@ -55,9 +55,11 @@ import org.springframework.context.annotation.Configuration;
     ),
     servers = {
         @Server(
-            description = "Ambiente Local",
-            url = "http://localhost:8080"
-        )
+            description = "Ambiente Local", url = "http://localhost:8080"),
+        @Server(
+            description = "Localhost (Docker)", url = "http://localhost:8081"),
+        @Server(
+            description = "Produção", url = "https://api.auth.com"),
     }
 )
 @SecurityScheme(

@@ -1,5 +1,5 @@
 jwt:
-  secret: minha-chave-super-secreta-com-no-minimo-64-bytes-para-hs512-2025
+  secret: Kk3Z3xZP0+v1Qy9zZ4CzM0+QzZy2M0R1u7vK0W8M5a0=
   access-expiration: 30000  # 15 segundos (15 * 1000)
   refresh-expiration: 30000  # 30 segundos em milissegundos
   
