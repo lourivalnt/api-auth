@@ -1,20 +1,4 @@
 jwt:
-  secret: Kk3Z3xZP0+v1Qy9zZ4CzM0+QzZy2M0R1u7vK0W8M5a0=
-  access-expiration: 30000  # 15 segundos (15 * 1000)
-  refresh-expiration: 30000  # 30 segundos em milissegundos
-  
-spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/auth_db
-    username: postgres
-    password: root
-    driver-class-name: org.postgresql.Driver
-
-  jpa:
-    hibernate:
-      ddl-auto: validate
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+  secret: TXlTdXBlclNlY3JldEtleUZvckpXVA==
+  expiration: 900000          # 15 min
+  refresh-expiration: 604800000 # 7 dias

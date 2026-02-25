@@ -1,0 +1,21 @@
+groups:
+- name: auth-alerts
+  rules:
+
+  - alert: ExcessiveLoginFailures
+    expr: increase(auth_login_failure_total[1m]) > 5
+    for: 30s
+    labels:
+      severity: warning
+    annotations:
+      summary: "Muitas falhas de login"
+      description: "Possível ataque de força bruta detectado"
+
+  - alert: AuthApiDown
+    expr: up{job="auth-api"} == 0
+    for: 30s
+    labels:
+      severity: critical
+    annotations:
+      summary: "Auth API indisponível"
+      description: "A API de autenticação está indisponível há mais de 30 segundos."

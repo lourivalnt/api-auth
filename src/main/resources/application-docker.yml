@@ -1,14 +1,6 @@
 spring:
-  datasource:
-    driver-class-name: org.postgresql.Driver
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: false
-    properties:
-      hibernate:
-        format_sql: true
+  application:
+    name: auth-api
+  config:
+    import: optional:configserver:http://config-server:8888
 
-server:
-  error:
-    include-message: never

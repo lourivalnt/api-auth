@@ -1,0 +1,5 @@
+route:
+  receiver: "log-alerts"
+
+receivers:
+  - name: "log-alerts"
