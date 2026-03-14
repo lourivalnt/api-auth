@@ -2,3 +2,11 @@ jwt:
   secret: TXlTdXBlclNlY3JldEtleUZvckpXVA==
   expiration: 900000          # 15 min
   refresh-expiration: 604800000 # 7 dias
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    prometheus:
+      enabled: true
