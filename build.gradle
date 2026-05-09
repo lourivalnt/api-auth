@@ -1,98 +1,74 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '4.0.1'
-	id 'io.spring.dependency-management' version '1.1.7'
+    id 'java'
+    id 'org.springframework.boot' version '4.0.6'
+    id 'io.spring.dependency-management' version '1.1.7'
 }
 
 group = 'com.auth'
-version = '0.0.1-SNAPSHOT'
-description = 'Demo project for Spring Boot'
+version = '1.0.0'
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
-	}
-}
-
-configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
-}
-
-repositories {
-	mavenCentral()
-}
-
-dependencyManagement {
-    imports {
-        mavenBom "org.springframework.cloud:spring-cloud-dependencies:2025.1.0"
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
+repositories {
+    mavenCentral()
+}
+
+ext {
+    mapstructVersion = "1.6.3"
+    jjwtVersion = "0.12.7"
+}
 
 dependencies {
-	  // Spring Boot Starters
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    // WEB
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-validation' // Recomendado para validação
-    implementation 'org.springframework.cloud:spring-cloud-starter-config'
 
+    // SECURITY
+    implementation 'org.springframework.boot:spring-boot-starter-security'
 
-    // Swagger    
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5'
+    // VALIDATION
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
 
-    
-    // JWT (JSON Web Token)
-    implementation 'io.jsonwebtoken:jjwt-api:0.12.5'
-    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.5'
-    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.5'
-    
-    // MapStruct
-    implementation("org.mapstruct:mapstruct:1.6.0")
-    annotationProcessor("org.mapstruct:mapstruct-processor:1.6.0")
+    // JPA
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
-    // Lombok
+    // REDIS
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // ACTUATOR
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    // POSTGRES
+    runtimeOnly 'org.postgresql:postgresql'
+
+    // JWT
+    implementation "io.jsonwebtoken:jjwt-api:${jjwtVersion}"
+    runtimeOnly "io.jsonwebtoken:jjwt-impl:${jjwtVersion}"
+    runtimeOnly "io.jsonwebtoken:jjwt-jackson:${jjwtVersion}"
+
+    // OPENAPI
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9'
+
+    // OBSERVABILITY
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+
+    // MAPSTRUCT
+    implementation "org.mapstruct:mapstruct:${mapstructVersion}"
+    annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
+
+    // LOMBOK
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
-    
-    implementation 'org.mapstruct:mapstruct:1.5.5.Final'
-    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
-    
-    // Banco de dados
-    runtimeOnly 'org.postgresql:postgresql'
-
-    //Flyway
-    implementation 'org.flywaydb:flyway-core'
-
-    // Logs estruturados (observabilidade)
-    implementation("net.logstash.logback:logstash-logback-encoder:7.4")
-
-    // Actuator (health, metrics, info)
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
-
-    // Micrometer Prometheus
-    implementation 'io.micrometer:micrometer-registry-prometheus'
-
-    implementation 'io.micrometer:micrometer-tracing-bridge-otel'
-    implementation 'io.opentelemetry:opentelemetry-exporter-otlp'
-    
-    // Redis
-    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-
-    
-    // Testes
+    // TEST
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    testImplementation 'org.mockito:mockito-core'
-    testImplementation 'org.mockito:mockito-junit-jupiter'
-
-    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 }
 
 tasks.named('test') {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }

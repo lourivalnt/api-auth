@@ -1,100 +1,98 @@
 package com.auth.core.application.service.impl;
 
-import com.auth.core.application.exception.InvalidCredentialsException;
-import com.auth.core.application.exception.TooManyRequestsException;
-import com.auth.core.application.port.in.AuthUseCase;
-import com.auth.core.application.port.out.UserPersistencePort;
-import com.auth.core.application.service.RefreshTokenService;
-import com.auth.core.domain.model.Session;
-import com.auth.infrastructure.security.JwtService;
-import com.auth.infrastructure.security.PasswordEncoderAdapter;
-import com.auth.infrastructure.security.ratelimit.RateLimiterService;
-import com.auth.infrastructure.web.dto.response.AuthTokens;
-import com.auth.infrastructure.web.util.RequestContext;
-
+import com.auth.core.application.port.in.LoginUseCase;
+import com.auth.core.application.port.in.RegisterUseCase;
+import com.auth.core.application.port.out.UserRepositoryPort;
+import com.auth.core.domain.model.User;
+import com.auth.infrastructure.security.jwt.JwtService;
+import com.auth.web.dto.request.LoginRequest;
+import com.auth.web.dto.request.RegisterRequest;
+import com.auth.web.dto.response.AuthResponse;
 import lombok.RequiredArgsConstructor;
-
-import java.util.List;
-import java.util.UUID;
-
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class AuthServiceImpl implements AuthUseCase {
+public class AuthServiceImpl
+    implements RegisterUseCase, LoginUseCase {
 
-    private final UserPersistencePort userRepository;
-    private final PasswordEncoderAdapter encoder;
+    private final UserRepositoryPort userRepository;
+    private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
-    private final RefreshTokenService refreshTokenService;
-    private final SessionService sessionService;
-    private final RateLimiterService rateLimiterService;
+    private final AuthenticationManager authenticationManager;
 
     @Override
-    public AuthTokens login(String email, String password) {
+    public AuthResponse register(RegisterRequest request) {
 
-        String ip = RequestContext.getIp(); // explico abaixo
+        userRepository.findByEmail(request.getEmail())
+            .ifPresent(user -> {
+                throw new RuntimeException("User already exists");
+            });
 
-        if (rateLimiterService.isBlocked(ip)) {
-            throw new TooManyRequestsException();
-        }
+        User user = User.builder()
+            .id(UUID.randomUUID())
+            .email(request.getEmail())
+            .password(
+                passwordEncoder.encode(request.getPassword())
+            )
+            .role("USER")
+            .createdAt(LocalDateTime.now())
+            .build();
 
-        try {
+        userRepository.save(user);
 
-            var user = userRepository.findByEmail(email)
-                    .orElseThrow(InvalidCredentialsException::new);
+        UUID sessionId = UUID.randomUUID();
 
-            if (!encoder.matches(password, user.getPassword())) {
-                rateLimiterService.registerAttempt(ip);
-                throw new InvalidCredentialsException();
-            }
-
-            /*
-                ✅ Login bem-sucedido → reset contador
-            */
-            rateLimiterService.reset(ip);
-
-            Session session = sessionService.create(user.getId(), "web", ip);
-
-            var refreshToken =
-                    refreshTokenService.create(user.getId(), session.getId());
-
-            return new AuthTokens(
-                    jwtService.generateToken(user.getId(), session.getId()),
-                    refreshToken.getToken()
+        String accessToken =
+            jwtService.generateAccessToken(
+                user.getId(),
+                user.getEmail(),
+                sessionId
             );
 
-        } catch (InvalidCredentialsException ex) {
-
-            rateLimiterService.registerAttempt(ip);
-            throw ex;
-        }
+        return AuthResponse.builder()
+            .accessToken(accessToken)
+            .refreshToken("temporary-refresh-token")
+            .tokenType("Bearer")
+            .expiresIn(900L)
+            .build();
     }
 
     @Override
-    public String refresh(UUID refreshTokenId) {
+    public AuthResponse login(LoginRequest request) {
 
-        var stored = refreshTokenService.validate(refreshTokenId);
+        authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(
+                request.getEmail(),
+                request.getPassword()
+            )
+        );
 
-        return jwtService.generateToken(
-                stored.getUserId(),
-                stored.getSessionId());
+        User user = userRepository.findByEmail(request.getEmail())
+            .orElseThrow(() ->
+                new RuntimeException("User not found")
+            );
+
+        UUID sessionId = UUID.randomUUID();
+
+        String accessToken =
+            jwtService.generateAccessToken(
+                user.getId(),
+                user.getEmail(),
+                sessionId
+            );
+
+        return AuthResponse.builder()
+            .accessToken(accessToken)
+            .refreshToken("temporary-refresh-token")
+            .tokenType("Bearer")
+            .expiresIn(900L)
+            .build();
     }
-
-    @Override
-    public void logoutAll(UUID userId) {
-        sessionService.revokeAll(userId);
-    }
-
-    @Override
-    public List<Session> listSessions(UUID userId) {
-        return sessionService.findActiveByUser(userId);
-    }
-
-    @Override
-    public void logoutSession(UUID userId, UUID sessionId) {
-        /// Futuramente podemos validar se a sessão pertence ao usuário
-        sessionService.revoke(sessionId);
-    }
-
 }
