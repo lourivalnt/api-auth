@@ -18,37 +18,35 @@ public class JwtService {
     private final JwtProperties jwtProperties;
 
     public String generateAccessToken(
-        UUID userId,
-        String email,
-        UUID sessionId
-    ) {
+            UUID userId,
+            String email,
+            UUID sessionId) {
 
         Date now = new Date();
 
         Date expiration = new Date(
-            now.getTime() + jwtProperties.getExpiration()
-        );
+                now.getTime() + jwtProperties.getExpiration());
 
         return Jwts.builder()
-            .subject(userId.toString())
+                .subject(userId.toString())
 
-            .claim("email", email)
-            .claim("sessionId", sessionId)
+                .claim("email", email)
+                .claim("sessionId", sessionId)
 
-            .issuedAt(now)
-            .expiration(expiration)
+                .issuedAt(now)
+                .expiration(expiration)
 
-            .signWith(getKey())
-            .compact();
+                .signWith(getKey())
+                .compact();
     }
 
     public Claims extractClaims(String token) {
 
         return Jwts.parser()
-            .verifyWith(getKey())
-            .build()
-            .parseSignedClaims(token)
-            .getPayload();
+                .verifyWith(getKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
     public String extractSubject(String token) {
@@ -68,7 +66,11 @@ public class JwtService {
     private SecretKey getKey() {
 
         return Keys.hmacShaKeyFor(
-            jwtProperties.getSecret().getBytes()
-        );
+                jwtProperties.getSecret().getBytes());
+    }
+
+    public String generateRefreshToken() {
+
+        return UUID.randomUUID() + "." + UUID.randomUUID();
     }
 }
