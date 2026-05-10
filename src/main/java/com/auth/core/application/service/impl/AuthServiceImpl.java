@@ -5,6 +5,7 @@ import com.auth.core.application.port.in.RefreshTokenUseCase;
 import com.auth.core.application.port.in.RegisterUseCase;
 import com.auth.core.application.port.out.UserRepositoryPort;
 import com.auth.core.domain.model.User;
+import com.auth.infrastructure.cache.repository.SessionCacheService;
 import com.auth.infrastructure.persistence.entity.RefreshTokenEntity;
 import com.auth.infrastructure.persistence.entity.SessionEntity;
 import com.auth.infrastructure.persistence.repository.RefreshTokenJpaRepository;
@@ -37,6 +38,7 @@ public class AuthServiceImpl
     private final SessionJpaRepository sessionRepository;
     private final RefreshTokenJpaRepository refreshTokenRepository;
     private final RefreshTokenService refreshTokenService;
+    private final SessionCacheService sessionCacheService;
 
     @Override
     public AuthResponse register(RegisterRequest request) {
@@ -92,6 +94,10 @@ public class AuthServiceImpl
                         .lastSeenAt(LocalDateTime.now())
                         .revoked(false)
                         .build());
+
+        sessionCacheService.cacheSession(
+                session.getId(),
+                user.getId());
 
         String accessToken = jwtService.generateAccessToken(
                 user.getId(),
