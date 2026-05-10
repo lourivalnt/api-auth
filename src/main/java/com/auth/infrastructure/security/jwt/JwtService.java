@@ -73,4 +73,15 @@ public class JwtService {
 
         return UUID.randomUUID() + "." + UUID.randomUUID();
     }
+
+    public String generateRefreshAccessToken(
+            UUID userId,
+            String email,
+            UUID sessionId) {
+
+        return generateAccessToken(
+                userId,
+                email,
+                sessionId);
+    }
 }
