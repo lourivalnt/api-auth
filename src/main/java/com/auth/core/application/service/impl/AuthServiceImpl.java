@@ -1,6 +1,7 @@
 package com.auth.core.application.service.impl;
 
 import com.auth.core.application.port.in.LoginUseCase;
+import com.auth.core.application.port.in.RefreshTokenUseCase;
 import com.auth.core.application.port.in.RegisterUseCase;
 import com.auth.core.application.port.out.UserRepositoryPort;
 import com.auth.core.domain.model.User;
@@ -26,7 +27,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl
-        implements RegisterUseCase, LoginUseCase {
+        implements RegisterUseCase, LoginUseCase, RefreshTokenUseCase {
 
     private final UserRepositoryPort userRepository;
     private final PasswordEncoder passwordEncoder;
