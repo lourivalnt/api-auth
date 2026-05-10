@@ -11,6 +11,7 @@ import com.auth.infrastructure.persistence.repository.SessionJpaRepository;
 import com.auth.infrastructure.security.jwt.JwtService;
 import com.auth.infrastructure.security.jwt.RefreshTokenService;
 import com.auth.web.dto.request.LoginRequest;
+import com.auth.web.dto.request.RefreshTokenRequest;
 import com.auth.web.dto.request.RegisterRequest;
 import com.auth.web.dto.response.AuthResponse;
 import lombok.RequiredArgsConstructor;
@@ -111,6 +112,68 @@ public class AuthServiceImpl
         return AuthResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
+                .tokenType("Bearer")
+                .expiresIn(900L)
+                .build();
+    }
+
+    public AuthResponse refreshToken(
+            RefreshTokenRequest request) {
+
+        RefreshTokenEntity storedToken = refreshTokenRepository
+                .findByToken(request.getRefreshToken())
+                .orElseThrow(() -> new RuntimeException("Invalid refresh token"));
+
+        if (storedToken.isRevoked()) {
+
+            throw new RuntimeException(
+                    "Refresh token reuse detected");
+        }
+
+        if (storedToken.getExpiresAt()
+                .isBefore(LocalDateTime.now())) {
+
+            throw new RuntimeException(
+                    "Refresh token expired");
+        }
+
+        SessionEntity session = sessionRepository.findById(
+                storedToken.getSessionId()).orElseThrow(() -> new RuntimeException("Session not found"));
+
+        if (session.isRevoked()) {
+
+            throw new RuntimeException(
+                    "Session revoked");
+        }
+
+        User user = userRepository.findById(
+                session.getUserId()).orElseThrow(() -> new RuntimeException("User not found"));
+
+        // ROTATION
+        storedToken.setRevoked(true);
+
+        refreshTokenRepository.save(storedToken);
+
+        String newRefreshToken = refreshTokenService.generate();
+
+        RefreshTokenEntity newToken = refreshTokenRepository.save(
+                RefreshTokenEntity.builder()
+                        .sessionId(session.getId())
+                        .token(newRefreshToken)
+                        .expiresAt(
+                                LocalDateTime.now().plusDays(7))
+                        .createdAt(LocalDateTime.now())
+                        .revoked(false)
+                        .build());
+
+        String accessToken = jwtService.generateRefreshAccessToken(
+                user.getId(),
+                user.getEmail(),
+                session.getId());
+
+        return AuthResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(newToken.getToken())
                 .tokenType("Bearer")
                 .expiresIn(900L)
                 .build();
