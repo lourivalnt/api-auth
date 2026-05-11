@@ -6,6 +6,7 @@ import com.auth.core.application.port.in.RegisterUseCase;
 import com.auth.core.application.port.out.UserRepositoryPort;
 import com.auth.core.domain.model.User;
 import com.auth.infrastructure.cache.repository.SessionCacheService;
+import com.auth.infrastructure.observability.metrics.AuthMetricsService;
 import com.auth.infrastructure.persistence.entity.RefreshTokenEntity;
 import com.auth.infrastructure.persistence.entity.SessionEntity;
 import com.auth.infrastructure.persistence.repository.RefreshTokenJpaRepository;
@@ -39,6 +40,7 @@ public class AuthServiceImpl
     private final RefreshTokenJpaRepository refreshTokenRepository;
     private final RefreshTokenService refreshTokenService;
     private final SessionCacheService sessionCacheService;
+    private final AuthMetricsService authMetricsService;
 
     @Override
     public AuthResponse register(RegisterRequest request) {
@@ -77,13 +79,24 @@ public class AuthServiceImpl
     @Override
     public AuthResponse login(LoginRequest request) {
 
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword()));
+        try {
 
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getEmail(),
+                            request.getPassword()));
+
+            authMetricsService.incrementLoginSuccess();
+
+        } catch (Exception ex) {
+
+            authMetricsService.incrementLoginFailure();
+
+            throw ex;
+        }
+
+        User user = userRepository.findByEmail(
+                request.getEmail()).orElseThrow(() -> new RuntimeException("User not found"));
 
         SessionEntity session = sessionRepository.save(
                 SessionEntity.builder()
