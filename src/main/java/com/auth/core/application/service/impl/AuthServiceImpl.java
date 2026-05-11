@@ -186,6 +186,8 @@ public class AuthServiceImpl
                         .revoked(false)
                         .build());
 
+        authMetricsService.incrementRefreshToken();
+
         String accessToken = jwtService.generateRefreshAccessToken(
                 user.getId(),
                 user.getEmail(),
