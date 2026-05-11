@@ -2,6 +2,7 @@ package com.auth.core.application.service.impl;
 
 import com.auth.core.application.port.in.LogoutUseCase;
 import com.auth.core.application.port.in.SessionUseCase;
+import com.auth.infrastructure.observability.metrics.AuthMetricsService;
 import com.auth.infrastructure.persistence.entity.RefreshTokenEntity;
 import com.auth.infrastructure.persistence.entity.SessionEntity;
 import com.auth.infrastructure.persistence.repository.RefreshTokenJpaRepository;
@@ -22,6 +23,8 @@ public class SessionServiceImpl
     private final SessionJpaRepository sessionRepository;
 
     private final RefreshTokenJpaRepository refreshTokenRepository;
+
+    private final AuthMetricsService authMetricsService;
 
     @Override
     public List<SessionResponse> listSessions() {
@@ -60,6 +63,10 @@ public class SessionServiceImpl
         sessionRepository.save(session);
 
         revokeRefreshTokens(sessionId);
+
+        authMetricsService.incrementLogout();
+
+        
     }
 
     @Override
@@ -78,6 +85,8 @@ public class SessionServiceImpl
             sessionRepository.save(session);
 
             revokeRefreshTokens(session.getId());
+
+            authMetricsService.incrementLogout();
         });
     }
 
