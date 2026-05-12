@@ -43,6 +43,6 @@ springdoc:
     path: /swagger-ui.html
 
 jwt:
-  secret: YOUR_SUPER_SECRET_KEY_CHANGE_IN_PRODUCTION
+  secret: ${JWT_SECRET}
   expiration: 900000
   refresh-expiration: 604800000
