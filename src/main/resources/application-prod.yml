@@ -1,5 +1,6 @@
 server:
   port: 8080
+  forward-headers-strategy: framework
 
 spring:
   application:
@@ -20,8 +21,8 @@ spring:
     properties:
       hibernate:
         format_sql: true
-
-    show-sql: true
+    
+    show-sql: false
 
   data:
     redis:
