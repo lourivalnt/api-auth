@@ -35,6 +35,13 @@ public class SecurityConfig {
 
                 .cors(Customizer.withDefaults())
 
+                .headers(headers -> headers
+                        .frameOptions(frame -> frame.deny())
+                        .contentTypeOptions(Customizer.withDefaults())
+                        .xssProtection(Customizer.withDefaults())
+                        .cacheControl(Customizer.withDefaults())
+                        )
+
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 .exceptionHandling(exception -> exception
