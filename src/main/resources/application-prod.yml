@@ -1,58 +1,16 @@
-server:
-  port: 8080
-  forward-headers-strategy: framework
-
 spring:
-  application:
-    name: auth-api
-
-  profiles:
-    active: dev
 
   datasource:
-    url: jdbc:postgresql://localhost:5433/authdb
-    username: authuser
-    password: authpass
-
-  jpa:
-    hibernate:
-      ddl-auto: update
-
-    properties:
-      hibernate:
-        format_sql: true
-    
-    show-sql: false
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
 
   data:
     redis:
-      host: localhost
-      port: 6380
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,prometheus,metrics
-
-  endpoint:
-    health:
-      show-details: always
-      probes:
-        enabled: true
-
-  health:
-    livenessstate:
-      enabled: true
-
-    readinessstate:
-      enabled: true
-
-springdoc:
-  swagger-ui:
-    path: /swagger-ui.html
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
 
 jwt:
-  secret: YOUR_SUPER_SECRET_KEY_CHANGE_IN_PRODUCTION
-  expiration: 900000
-  refresh-expiration: 604800000
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION:900000}
+  refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000}
