@@ -2,8 +2,31 @@ version: '3.9'
 
 services:
 
+  auth-api:
+    build: .
+
+    container_name: auth-api
+
+    ports:
+      - "8080:8080"
+
+    healthcheck:
+
+      test:
+        [
+          "CMD",
+          "curl",
+          "-f",
+          "http://localhost:8080/actuator/health"
+        ]
+
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
   postgres:
     image: postgres:16
+
     container_name: auth-postgres
 
     environment:
@@ -19,6 +42,7 @@ services:
 
   redis:
     image: redis:7
+
     container_name: auth-redis
 
     ports:
@@ -26,6 +50,7 @@ services:
 
   prometheus:
     image: prom/prometheus
+
     container_name: auth-prometheus
 
     ports:
@@ -36,6 +61,7 @@ services:
 
   grafana:
     image: grafana/grafana
+
     container_name: auth-grafana
 
     ports:
