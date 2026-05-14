@@ -20,6 +20,7 @@ repositories {
 ext {
     mapstructVersion = "1.6.3"
     jjwtVersion = "0.12.7"
+    testcontainersVersion = "1.21.3"
 }
 
 dependencies {
@@ -67,9 +68,11 @@ dependencies {
     // TEST
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
-    testImplementation 'org.testcontainers:junit-jupiter'
-    testImplementation 'org.testcontainers:postgresql'
-    testImplementation 'org.testcontainers:redis'
+    testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+    
+    testImplementation "org.testcontainers:junit-jupiter:${testcontainersVersion}"
+    testImplementation "org.testcontainers:postgresql:${testcontainersVersion}"
+
     testImplementation 'org.springframework.boot:spring-boot-testcontainers'
 }
 

@@ -23,6 +23,7 @@ spring:
 
     show-sql: true
 
+
   data:
     redis:
       host: localhost
